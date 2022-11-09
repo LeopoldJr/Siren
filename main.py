@@ -24,7 +24,7 @@ def getShodanResults(query:str, client):
 def scanURL(url:str, vtClient, shodanClient):
 
     url_id = vt.url_id("http://www.virustotal.com")
-    res = vtClient.get_object("/urls/{}", url_id)
+    res = vtClient.get_object("/urls/{}", url_id).last_analysis_stats
 
 
     #res = {'harmless': 0, 'malicious': 0, 'suspicious': 0, 'undetected': 90, 'timeout': 0}
@@ -88,13 +88,14 @@ def main():
     if not (args.readfile or args.url or args.file or args.shodan):
         print("Please enter something.")
         return
-    if args.readfile and args.url:
-        print("Please specify either a file or a URL, not both.")
+    
+    if [args.readfile, args.url, args.file, args.shodan].count(None) != 3:
+        print("Please specify only one flag.")
         return
     
     with open("key", "r") as f:
-        vtKey = f.readline()
-        shodanKey = f.readline()
+        vtKey = f.readline().strip()
+        shodanKey = f.readline().strip()
     
     vtclient = vt.Client(vtKey)
     shodanclient = shodan.Shodan(shodanKey)
